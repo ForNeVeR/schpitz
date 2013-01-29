@@ -5,12 +5,16 @@ var cocos  = require('cocos2d')
   , Player = require('/Player')
   , Bullet = require('/Bullet')
 
+function bearing (point, target) {
+	return Math.atan2(point.y - target.y, target.x - point.x);
+}
 
 function Schpitz () {
     // You must always call the super class version of init
     Schpitz.superclass.constructor.call(this)
 
     this.isMouseEnabled = true
+    this.isKeyboardEnabled = true
 
     // Get size of canvas
     var s = cocos.Director.sharedDirector.winSize
@@ -27,22 +31,43 @@ Schpitz.inherit(cocos.nodes.Layer, {
     player: null,
     bullets: null,
 
-    mouseMoved: function (evt) {
-        var player = this.player
+	keyDown: function (evt) {
+        var player = this.player,
+        	velocity = player.velocity;
 
-        var playerPos = player.position
-        playerPos.x = evt.locationInCanvas.x
-        playerPos.y = evt.locationInCanvas.y
-        player.position = playerPos
+        switch (evt.keyCode) {
+       	case 87:
+       		velocity.y = -10;
+        	break;
+	   	case 65:
+	   		velocity.x = -10;
+        	break;
+	   	case 83:
+	   		velocity.y = 10;
+        	break;
+	   	case 68:
+	   		velocity.x = 10;
+        	break;
+        }
+
+        player.velocity = velocity;
+    },
+
+    keyUp: function () {
+    	var player = this.player;
+
+    	player.velocity = new geom.Point(0, 0);
     },
 
     mouseDown: function (evt) {
     	var player = this.player,
-    		position = player.position,
+    		center = player.position,
+    		target = evt.locationInCanvas,
+    		angle = bearing(center, target),
     		bullet = new Bullet();
 
-    	bullet.position = position;
-    	bullet.velocity = new geom.Point(0, 5);
+    	bullet.position = center;
+    	bullet.velocity = new geom.Point(100 * Math.cos(angle), 100 * Math.sin(angle));
 
     	this.addChild(bullet);
     },
