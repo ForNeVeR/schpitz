@@ -31,6 +31,18 @@ Bullet.inherit(cocos.nodes.Node, {
         pos.y -= dt * vel.y;
 
         this.position = pos
+
+        this.testCollision();
+    },
+
+    testCollision: function () {
+        var winSize = cocos.Director.sharedDirector.winSize,
+            game = this.parent,
+            position = this.position;
+
+        if (position.x < 0 || position.x >= winSize.width || position.y < 0 || position.y >= winSize.height) {
+            game.removeChild(this);
+        }
     }
 })
 
