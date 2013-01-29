@@ -1,44 +1,64 @@
-"use strict"  // Use strict JavaScript mode
+// Import the cocos2d module
+var cocos  = require('cocos2d')
+  , events = require('events')
+  , geom   = require('geometry')
+  , Player = require('/Player')
+  , Bullet = require('/Bullet')
 
-// Pull in the modules we're going to use
-var cocos  = require('cocos2d')   // Import the cocos2d module
-  , nodes  = cocos.nodes          // Convenient access to 'nodes'
-  , events = require('events')    // Import the events module
-  , geo    = require('geometry')  // Import the geometry module
-  , ccp    = geo.ccp              // Short hand to create points
 
-// Convenient access to some constructors
-var Layer    = nodes.Layer
-  , Scene    = nodes.Scene
-  , Label    = nodes.Label
-  , Director = cocos.Director
-
-/**
- * @class Initial application layer
- * @extends cocos.nodes.Layer
- */
 function Schpitz () {
-    // You must always call the super class constructor
+    // You must always call the super class version of init
     Schpitz.superclass.constructor.call(this)
 
+    this.isMouseEnabled = true
+
     // Get size of canvas
-    var s = Director.sharedDirector.winSize
+    var s = cocos.Director.sharedDirector.winSize
 
-    // Create label
-    var label = new Label({ string:   'Schpitz'
-                          , fontName: 'Arial'
-                          , fontSize: 76
-                          })
 
-    // Position the label in the centre of the view
-    label.position = ccp(s.width / 2, s.height / 2)
-
-    // Add label to layer
-    this.addChild(label)
+    // Add Bat
+    var player = new Player
+    player.position = new geom.Point(160, s.height - 280)
+    this.addChild(player)
+    this.player = player
 }
 
-// Inherit from cocos.nodes.Layer
-Schpitz.inherit(Layer)
+Schpitz.inherit(cocos.nodes.Layer, {
+    player: null,
+    bullets: null,
+
+    mouseMoved: function (evt) {
+        var player = this.player
+
+        var playerPos = player.position
+        playerPos.x = evt.locationInCanvas.x
+        playerPos.y = evt.locationInCanvas.y
+        player.position = playerPos
+    },
+
+    mouseDown: function (evt) {
+    	var player = this.player,
+    		position = player.position,
+    		bullet = new Bullet();
+
+    	bullet.position = position;
+    	bullet.velocity = new geom.Point(0, 5);
+
+    	this.addChild(bullet);
+    },
+
+    restart: function () {
+        var director = cocos.Director.sharedDirector
+
+        // Create a scene
+        var scene = new cocos.nodes.Scene()
+
+        // Add our layer to the scene
+        scene.addChild(new Schpitz())
+
+        director.replaceScene(scene)
+    }
+})
 
 /**
  * Entry point for the application
@@ -47,12 +67,12 @@ function main () {
     // Initialise application
 
     // Get director singleton
-    var director = Director.sharedDirector
+    var director = cocos.Director.sharedDirector
 
     // Wait for the director to finish preloading our assets
     events.addListener(director, 'ready', function (director) {
         // Create a scene and layer
-        var scene = new Scene()
+        var scene = new cocos.nodes.Scene()
           , layer = new Schpitz()
 
         // Add our layer to the scene
