@@ -10,8 +10,6 @@ function Player () {
          rect: new geom.Rect(0, 0, 16, 16)
      })
 
-	sprite.anchorPoint = new geom.Point(0, 0)
-
 	this.addChild({child: sprite})
 	this.contentSize = sprite.contentSize
 	this.velocity = new geom.Point(0, 0)
